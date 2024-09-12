@@ -622,9 +622,6 @@ video {
 .w-9 {
   width: 2.25rem;
 }
-.w-10 {
-  width: 2.5rem;
-}
 .min-w-\[8rem\] {
   min-width: 8rem;
 }
@@ -657,15 +654,6 @@ video {
 }
 .gap-8 {
   gap: 2rem;
-}
-.gap-10 {
-  gap: 2.5rem;
-}
-.gap-20 {
-  gap: 5rem;
-}
-.gap-4 {
-  gap: 1rem;
 }
 .overflow-hidden {
   overflow: hidden;
@@ -710,10 +698,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(226 232 240 / var(--tw-bg-opacity));
 }
-.bg-slate-100 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
-}
 .fill-current {
   fill: currentColor;
 }
@@ -725,15 +709,6 @@ video {
 }
 .p-5 {
   padding: 1.25rem;
-}
-.p-10 {
-  padding: 2.5rem;
-}
-.p-3 {
-  padding: 0.75rem;
-}
-.p-4 {
-  padding: 1rem;
 }
 .px-10 {
   padding-left: 2.5rem;

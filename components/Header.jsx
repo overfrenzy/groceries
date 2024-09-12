@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LayoutGrid, Search, ShoppingBag } from "lucide-react";
+import GlobalApi from "@/utils/GlobalApi";
 
 function Header() {
+  const [categoryList, setCategoryList] = useState([]);
+  useEffect(() => {
+    getCategoryList();
+  }, []);
+
+  const getCategoryList = () => {
+    GlobalApi.getCategory().then((resp) => {
+      setCategoryList(resp.data.data);
+    });
+  };
+
   return (
     <div className="p-5 shadow-md flex justify-between">
       <div className="flex items-center gap-8">
@@ -31,10 +44,21 @@ function Header() {
           <DropdownMenuContent>
             <DropdownMenuLabel>Browse Category</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>1</DropdownMenuItem>
-            <DropdownMenuItem>2</DropdownMenuItem>
-            <DropdownMenuItem>3</DropdownMenuItem>
-            <DropdownMenuItem>4</DropdownMenuItem>
+            {categoryList.map((category, index) => (
+              <DropdownMenuItem className="flex gap-2 items-center cursor-pointer">
+                <Image
+                  src={
+                    process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
+                    category?.attributes?.icon?.data?.attributes?.url
+                  }
+                  //unoptimized={true}
+                  alt="icon"
+                  width={25}
+                  height={25}
+                />
+                <h2>{category?.attributes?.name}</h2>
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
