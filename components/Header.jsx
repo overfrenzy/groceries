@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,9 +21,9 @@ function Header() {
 
   const getCategoryList = () => {
     GlobalApi.getCategory().then((resp) => {
-      setCategoryList(resp.data.data);
+      setCategoryList(resp.data);
     });
-  };
+  };  
 
   return (
     <div className="p-5 shadow-md flex justify-between">
@@ -44,21 +44,25 @@ function Header() {
           <DropdownMenuContent>
             <DropdownMenuLabel>Browse Category</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {categoryList.map((category, index) => (
-              <DropdownMenuItem className="flex gap-2 items-center cursor-pointer">
-                <Image
-                  src={
-                    process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
-                    category?.attributes?.icon?.data?.attributes?.url
-                  }
-                  //unoptimized={true}
-                  alt="icon"
-                  width={25}
-                  height={25}
-                />
-                <h2>{category?.attributes?.name}</h2>
-              </DropdownMenuItem>
-            ))}
+            {categoryList &&
+              categoryList.length > 0 &&
+              categoryList.map((category, index) => (
+                <DropdownMenuItem
+                  key={category.id}
+                  className="flex gap-2 items-center cursor-pointer"
+                >
+                  <Image
+                    src={
+                      process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
+                      category.icon
+                    }
+                    alt="icon"
+                    width={25}
+                    height={25}
+                  />
+                  <h2>{category.name}</h2>
+                </DropdownMenuItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
 
