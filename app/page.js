@@ -1,9 +1,11 @@
-import Image from "next/image";
+import Slider from "@/components/Slider";
+import GlobalApi from "@/utils/GlobalApi";
 
-export default function Home() {
+export default async function Home() {
+  const sliderList = await GlobalApi.getSliders();
   return (
     <div>
-      <h2>HOME</h2>
+      <Slider sliderList={sliderList} />
     </div>
   );
 }
