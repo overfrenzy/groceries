@@ -7,7 +7,7 @@ import { ShoppingBasket } from "lucide-react";
 function ProductItemDetail({ product, categories = [] }) {
   const productPrice = product.selling_price || product.mrp;
   const [quantity, setQuantity] = useState(1);
-  const totalPrice = (quantity * productPrice);
+  const totalPrice = quantity * productPrice;
 
   const getCategoryName = (categoryId) => {
     const category = categories.find((cat) => cat.id === categoryId);

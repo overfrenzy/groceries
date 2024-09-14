@@ -7,10 +7,17 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    // Fetch all products
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all()->map(function($product) {
+        $categoryId = $request->query('category_id');
+
+        $query = Product::query();
+        
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
+        }
+
+        $products = $query->get()->map(function($product) {
             if ($product->image) {
                 $product->image = url('storage/' . $product->image);
             }
