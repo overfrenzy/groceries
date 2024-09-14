@@ -14,6 +14,11 @@ class Category extends Model
 
     protected $fillable = ['name', 'icon'];
 
+    public function products()
+{
+    return $this->hasMany(Product::class);
+}
+
     public function setIconAttribute($value)
     {
         if (is_file($value)) {

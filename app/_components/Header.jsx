@@ -15,15 +15,19 @@ import GlobalApi from "@/utils/GlobalApi";
 
 function Header() {
   const [categoryList, setCategoryList] = useState([]);
-  useEffect(() => {
-    getCategoryList();
-  }, []);
+  const [loading, setLoading] = useState(true);
 
-  const getCategoryList = () => {
-    GlobalApi.getCategory().then((resp) => {
-      setCategoryList(resp.data);
-    });
-  };  
+  useEffect(() => {
+    GlobalApi.getCategories()
+      .then((resp) => {
+        setCategoryList(resp);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <div className="p-5 shadow-md flex justify-between">
@@ -44,25 +48,28 @@ function Header() {
           <DropdownMenuContent>
             <DropdownMenuLabel>Browse Category</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {categoryList &&
-              categoryList.length > 0 &&
-              categoryList.map((category, index) => (
+
+            {loading ? (
+              <DropdownMenuItem>Loading categories...</DropdownMenuItem>
+            ) : categoryList.length > 0 ? (
+              categoryList.map((category) => (
                 <DropdownMenuItem
                   key={category.id}
                   className="flex gap-2 items-center cursor-pointer"
                 >
                   <Image
-                    src={
-                      process.env.NEXT_PUBLIC_BACKEND_BASE_URL +
-                      category.icon
-                    }
+                    src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${category.icon}`}
                     alt="icon"
                     width={25}
                     height={25}
+                    className="object-contain"
                   />
                   <h2>{category.name}</h2>
                 </DropdownMenuItem>
-              ))}
+              ))
+            ) : (
+              <DropdownMenuItem>No categories available</DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
 
@@ -73,7 +80,6 @@ function Header() {
       </div>
       <div className="flex gap-5 items-center">
         <h2 className="flex gap-2 items-center text-lg">
-          {" "}
           <ShoppingBag /> 0
         </h2>
         <Button>Login</Button>

@@ -1,17 +1,14 @@
 const { default: axios } = require("axios");
 
 const axiosClient = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
 });
 
-const getCategory = () => axiosClient.get("/categories");
-
-const getSliders = () =>
-  axiosClient.get("/sliders").then((resp) => {
-    return resp.data;
-  });
+const fetchData = (endpoint) => axiosClient.get(endpoint).then(resp => resp.data);
 
 export default {
-  getCategory,
-  getSliders,
+  getCategories: () => fetchData('/categories'),
+  getSliders: () => fetchData('/sliders'),
+  getProducts: () => fetchData('/products'),
+  getProductById: (id) => fetchData(`/products/${id}`),
 };
