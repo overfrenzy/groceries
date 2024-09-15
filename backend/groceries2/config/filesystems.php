@@ -58,6 +58,13 @@ return [
 
     ],
 
+    'basset' => [
+        'driver' => 'local',
+        'root' => storage_path('app/public/vendor/backpack/basset'),
+        'url' => env('APP_URL').'/storage/vendor/backpack/basset',
+        'visibility' => 'public',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Symbolic Links
