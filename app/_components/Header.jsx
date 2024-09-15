@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LayoutGrid, Search, ShoppingBag } from "lucide-react";
 import GlobalApi from "@/utils/GlobalApi";
+import Link from "next/link";
 
 function Header() {
   const [categoryList, setCategoryList] = useState([]);
@@ -53,19 +54,21 @@ function Header() {
               <DropdownMenuItem>Loading categories...</DropdownMenuItem>
             ) : categoryList.length > 0 ? (
               categoryList.map((category) => (
-                <DropdownMenuItem
-                  key={category.id}
-                  className="flex gap-2 items-center cursor-pointer"
-                >
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${category.icon}`}
-                    alt="icon"
-                    width={25}
-                    height={25}
-                    className="object-contain"
-                  />
-                  <h2>{category.name}</h2>
-                </DropdownMenuItem>
+                <Link href={"/products-category/" + category.name}>
+                  <DropdownMenuItem
+                    key={category.id}
+                    className="flex gap-2 items-center cursor-pointer"
+                  >
+                    <Image
+                      src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${category.icon}`}
+                      alt="icon"
+                      width={25}
+                      height={25}
+                      className="object-contain"
+                    />
+                    <h2>{category.name}</h2>
+                  </DropdownMenuItem>
+                </Link>
               ))
             ) : (
               <DropdownMenuItem>No categories available</DropdownMenuItem>

@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 function CategoryList({ categoryList }) {
   return (
@@ -7,9 +8,10 @@ function CategoryList({ categoryList }) {
       <h2 className="text-green-600 font-bold text-2xl">Shop by Category</h2>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-5 mt-2">
         {categoryList.map((category) => (
-          <div
+          <Link
+            href={`/products-category/${category.name}`}
             key={category.id}
-            className="flex flex-col items-center bg-green-50 gap-2 p-3 rounded-lg group cursor-pointer hover:bg-green-200"
+            className="flex flex-col items-center bg-green-50 gap-2 p-3 rounded-lg group cursor-pointer hover:bg-green-600"
           >
             <div className="w-20 h-20 flex items-center justify-center">
               <Image
@@ -21,7 +23,7 @@ function CategoryList({ categoryList }) {
               />
             </div>
             <h2 className="text-green-800">{category.name}</h2>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

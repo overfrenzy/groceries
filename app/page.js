@@ -6,26 +6,32 @@ import GlobalApi from "@/utils/GlobalApi";
 import Image from "next/image";
 
 export default async function Home() {
-  const sliderList = await GlobalApi.getSliders();
-  const categoryList = await GlobalApi.getCategories();
-  const productList = await GlobalApi.getProducts();
+  const [sliderList, categoryList, productList] = await Promise.all([
+    GlobalApi.getSliders(),
+    GlobalApi.getCategories(),
+    GlobalApi.getProducts(),
+  ]);
 
   return (
     <div className="p-10 px-16">
-      {/* SliderList */}
+      {/* Slider */}
       <Slider sliderList={sliderList} />
 
-      {/* CategoryList */}
+      {/* Category List */}
       <CategoryList categoryList={categoryList} />
 
-      {/* ProductList */}
+      {/* Product List */}
       <ProductList productList={productList} categoryList={categoryList} />
 
       {/* Banner */}
-      <Image src="/banner.webp" width={1000} height={300} alt="banner" className="w-full h-[400px] object-contain"/>
-
-      {/* Footer */}
-      <Footer/>
+      <Image
+        src="/banner.webp"
+        width={1000}
+        height={300}
+        alt="banner"
+        className="w-full h-[400px] object-contain"
+      />
+      <Footer />
     </div>
   );
 }
