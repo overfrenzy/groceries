@@ -14,13 +14,15 @@ function Slider({ sliderList }) {
       <CarouselContent>
         {sliderList.map((slider) => (
           <CarouselItem key={slider.id}>
-            <Image
-              src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${slider.image}`}
-              width={1000}
-              height={400}
-              alt="slider"
-              className="w-full h-[200px] md:h-[400px] object-cover rounded-2xl"
-            />
+            <div className="relative w-full h-[200px] md:h-[400px]">
+              <Image
+                src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${slider.image}`}
+                alt="slider"
+                fill 
+                style={{ objectFit: "contain" }}
+                className="rounded-2xl"
+              />
+            </div>
           </CarouselItem>
         ))}
       </CarouselContent>
