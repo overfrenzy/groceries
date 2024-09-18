@@ -1,8 +1,12 @@
-const { default: axios } = require("axios");
+import axios from "axios";
+
+const isServer = typeof window === "undefined";
 
 const axiosClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
-  withCredentials: true,
+  baseURL: isServer
+    ? process.env.NEXT_PUBLIC_BACKEND_API_URL // Absolute URL for server-side
+    : "/api", // Relative URL for client-side (browser)
+  withCredentials: true, // Important: Sends the HttpOnly cookies automatically
 });
 
 const fetchData = async (endpoint) => {
@@ -42,12 +46,26 @@ const getProductsByCategory = async (categoryName) => {
   }
 };
 
-const login = async (email, password) => {
+const login = async (email, password, remember) => {
   try {
-    const response = await axiosClient.post("/login", { email, password });
+    const response = await axiosClient.post("/login", {
+      email,
+      password,
+      remember,
+    });
     return response.data;
   } catch (error) {
     console.error("Login failed", error);
+    throw error;
+  }
+};
+
+const logout = async () => {
+  try {
+    const response = await axiosClient.post("/logout");
+    return response.data;
+  } catch (error) {
+    console.error("Logout failed", error);
     throw error;
   }
 };
@@ -74,15 +92,20 @@ const register = async (username, email, password) => {
 const getUser = async () => {
   try {
     const response = await axiosClient.get("/user");
+
     return response.data;
   } catch (error) {
-    console.error("Error fetching user data", error);
+    console.error(
+      "Error fetching user data",
+      error.response ? error.response : error
+    );
     return null;
   }
 };
 
 export default {
   login,
+  logout,
   register,
   getUser,
   getCategories: () => fetchData("/categories"),

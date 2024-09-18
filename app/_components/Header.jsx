@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +13,19 @@ import {
 import { LayoutGrid, Search, ShoppingBag } from "lucide-react";
 import GlobalApi from "@/utils/GlobalApi";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { AuthContext } from "@/context/AuthContext";
 
 function Header() {
   const [categoryList, setCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated, user, setIsAuthenticated } = useContext(AuthContext); // Use auth context
+  const router = useRouter();
 
   useEffect(() => {
+    console.log("Header component loaded. Authenticated:", isAuthenticated);
+    
+    // Fetch categories
     GlobalApi.getCategories()
       .then((resp) => {
         setCategoryList(resp);
@@ -28,7 +35,19 @@ function Header() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  }, [isAuthenticated]);
+
+  const handleLogout = async () => {
+    try {
+      console.log("Logging out...");
+      await GlobalApi.logout();
+      setIsAuthenticated(false); 
+      router.push("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
+  };
+
 
   return (
     <div className="p-5 shadow-md flex justify-between">
@@ -39,8 +58,8 @@ function Header() {
           <DropdownMenuTrigger>
             <h2
               className="hidden md:flex gap-2 items-center
-            border rounded-full p-2 px-10 bg-slate-200 cursor-pointer
-        "
+              border rounded-full p-2 px-10 bg-slate-200 cursor-pointer
+          "
             >
               <LayoutGrid className="h-5 w-5" />
               Category
@@ -54,11 +73,11 @@ function Header() {
               <DropdownMenuItem>Loading categories...</DropdownMenuItem>
             ) : categoryList.length > 0 ? (
               categoryList.map((category) => (
-                <Link href={"/products-category/" + category.name}>
-                  <DropdownMenuItem
-                    key={category.id}
-                    className="flex gap-2 items-center cursor-pointer"
-                  >
+                <Link
+                  href={`/products-category/${category.name}`}
+                  key={category.id}
+                >
+                  <DropdownMenuItem className="flex gap-2 items-center cursor-pointer">
                     <Image
                       src={`${process.env.NEXT_PUBLIC_BACKEND_BASE_URL}${category.icon}`}
                       alt="icon"
@@ -85,7 +104,16 @@ function Header() {
         <h2 className="flex gap-2 items-center text-lg">
           <ShoppingBag /> 0
         </h2>
-        <Button>Login</Button>
+        {!isAuthenticated ? (
+          <Link href="/sign-in">
+            <Button>Login</Button>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2">
+            <span>Welcome, {user?.name}</span>
+            <Button onClick={handleLogout}>Logout</Button>
+          </div>
+        )}
       </div>
     </div>
   );

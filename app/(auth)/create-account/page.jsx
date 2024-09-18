@@ -17,12 +17,13 @@ function CreateAccount() {
   const onCreateAccount = async () => {
     try {
       const response = await GlobalApi.register(name, email, password);
-      toast("Account created")
+      toast("Account created");
       router.push("/");
     } catch (error) {
-      toast("Error creating account")
+      toast("Error creating account");
     }
   };
+
   return (
     <div className="flex items-baseline justify-center m-10">
       <div className="flex flex-col items-center justify-center p-10 bg-slate-100 border border-gray-200">
@@ -47,7 +48,7 @@ function CreateAccount() {
           />
           <Button onClick={() => onCreateAccount()}> Create an Account</Button>
           <p>
-            Already have an Account?
+            Already have an Account?{" "}
             <Link href={"/sign-in"} className="text-blue-500">
               Click here to Sign in
             </Link>

@@ -5,9 +5,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
+use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Http\Request;
-
-// Define API routes without CORS middleware
 
 // Public routes (categories, sliders, products)
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -18,8 +17,7 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Protected routes (fetch user data)
-Route::middleware('auth:api')->get('/user', [AuthController::class, 'user']);
-
-// Throttle login route to prevent brute-force attacks
-Route::middleware('throttle:10,1')->post('/login', [AuthController::class, 'login']);
+Route::middleware([JwtMiddleware::class])->group(function () {
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
