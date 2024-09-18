@@ -12,20 +12,24 @@ function CreateAccount() {
   const [name, setUsername] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+  const [loader, setLoader] = useState(false);
   const router = useRouter();
 
   const onCreateAccount = async () => {
+    setLoader(true);
     try {
       const response = await GlobalApi.register(name, email, password);
       toast("Account created");
       router.push("/");
+      setLoader(false);
     } catch (error) {
       toast("Error creating account");
+      setLoader(false);
     }
   };
 
   return (
-    <div className="flex items-baseline justify-center m-10">
+    <div className="flex items-baseline justify-center my-20">
       <div className="flex flex-col items-center justify-center p-10 bg-slate-100 border border-gray-200">
         <Image src="/logo.png" width={200} height={200} alt="logo" />
         <h2 className="font-bold text-3xl">Create an Account</h2>
@@ -46,7 +50,9 @@ function CreateAccount() {
             placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button onClick={() => onCreateAccount()}> Create an Account</Button>
+          <Button onClick={() => onCreateAccount()}>
+            {loader ? <LoaderIcon className="animate-spin" /> : "Create an Account"}
+          </Button>
           <p>
             Already have an Account?{" "}
             <Link href={"/sign-in"} className="text-blue-500">

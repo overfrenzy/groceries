@@ -52,7 +52,7 @@ class AuthController extends Controller
         JWTAuth::factory()->setTTL($token_ttl);
 
         if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Credentials dont match'], 401);
         }
 
         return response()->json(['success' => true, 'user' => auth()->user()])

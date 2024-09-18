@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LayoutGrid, Search, ShoppingBag } from "lucide-react";
+import { CircleUserRound, LayoutGrid, Search, ShoppingBasket } from "lucide-react";
 import GlobalApi from "@/utils/GlobalApi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,11 +20,10 @@ function Header() {
   const [categoryList, setCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, user, setIsAuthenticated } = useContext(AuthContext); // Use auth context
+  const [totalCartItem, setTotalCartItem] = useState(0)
   const router = useRouter();
 
   useEffect(() => {
-    console.log("Header component loaded. Authenticated:", isAuthenticated);
-    
     // Fetch categories
     GlobalApi.getCategories()
       .then((resp) => {
@@ -37,17 +36,19 @@ function Header() {
       });
   }, [isAuthenticated]);
 
+  const getCartItems=()=>{
+    //cart items overwrite themselves, getCartItems
+  }
+
   const handleLogout = async () => {
     try {
-      console.log("Logging out...");
       await GlobalApi.logout();
-      setIsAuthenticated(false); 
-      router.push("/");
+      setIsAuthenticated(false);
+      router.push("/sign-in");
     } catch (error) {
       console.error("Error during logout:", error);
     }
   };
-
 
   return (
     <div className="p-5 shadow-md flex justify-between">
@@ -102,8 +103,8 @@ function Header() {
       </div>
       <div className="flex gap-5 items-center">
         <h2 className="flex gap-2 items-center text-lg">
-          <ShoppingBag /> 0
-        </h2>
+          <ShoppingBasket className="h-7 w-7"/> 
+          <span className="bg-primary text-white px-2 rounded-full">{totalCartItem}</span></h2>
         {!isAuthenticated ? (
           <Link href="/sign-in">
             <Button>Login</Button>
@@ -111,7 +112,18 @@ function Header() {
         ) : (
           <div className="flex items-center gap-2">
             <span>Welcome, {user?.name}</span>
-            <Button onClick={handleLogout}>Logout</Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <CircleUserRound className="h-12 w-12 bg-green-100 text-green-600 p-2 rounded-full cursor-pointer"/>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>My Orders</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>

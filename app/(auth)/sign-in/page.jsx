@@ -8,29 +8,34 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import GlobalApi from "@/utils/GlobalApi";
 import { AuthContext } from "@/context/AuthContext";
+import { LoaderIcon } from "lucide-react";
 
 function SignIn() {
   const { setIsAuthenticated, setUser } = useContext(AuthContext);
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [rememberMe, setRememberMe] = useState(false);
+  const [loader, setLoader] = useState(false);
   const router = useRouter();
 
   const onSignIn = async () => {
+    setLoader(true);
     try {
       const response = await GlobalApi.login(email, password, rememberMe);
       toast("Successfully signed in");
       setIsAuthenticated(true);
       setUser(response.user);
       router.push("/");
+      setLoader(false);
     } catch (error) {
       console.error("Error during sign-in:", error);
-      toast("Error signing in");
+      toast(error?.response?.data?.error);
+      setLoader(false);
     }
   };
 
   return (
-    <div className="flex items-baseline justify-center m-10">
+    <div className="flex items-baseline justify-center my-20">
       <div className="flex flex-col items-center justify-center p-10 bg-slate-100 border border-gray-200">
         <Image src="/logo.png" width={200} height={200} alt="logo" />
         <h2 className="font-bold text-3xl">Sign in</h2>
@@ -59,7 +64,9 @@ function SignIn() {
             </label>
           </div>
 
-          <Button onClick={onSignIn}>Sign In</Button>
+          <Button onClick={onSignIn}>
+            {loader ? <LoaderIcon className="animate-spin" /> : "Sign In"}
+          </Button>
           <p>
             Don't have an Account?{" "}
             <Link href="/create-account" className="text-blue-500">

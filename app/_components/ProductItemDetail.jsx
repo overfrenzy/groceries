@@ -1,12 +1,19 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { ShoppingBasket } from "lucide-react";
+import { LoaderCircle, ShoppingBasket } from "lucide-react";
+import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import GlobalApi from "@/utils/GlobalApi";
 
 function ProductItemDetail({ product, categories = [] }) {
+  const { isAuthenticated, user } = useContext(AuthContext);
+  const router = useRouter();
   const productPrice = product.selling_price || product.mrp;
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading]=useState(false)
   const totalPrice = quantity * productPrice;
 
   const getCategoryName = (categoryId) => {
@@ -18,6 +25,31 @@ function ProductItemDetail({ product, categories = [] }) {
   const handleDecrease = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
+    }
+  };
+
+  const addToCart = async () => {
+    setLoading(true)
+    if (!isAuthenticated) {
+      router.push("/sign-in");
+      setLoading(false)
+      return;
+    }
+
+    try {
+      const data = {
+        quantity: quantity,
+        amount: totalPrice,
+        product_id: product.id,
+        user_id: user.id,
+      };
+      await GlobalApi.addToCart(data);
+      toast("Added to cart");
+      setLoading(false)
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast("Failed to add to cart");
+      setLoading(false)
     }
   };
 
@@ -73,9 +105,9 @@ function ProductItemDetail({ product, categories = [] }) {
             <h2 className="text-2xl font-bold">= {totalPrice} ₽</h2>
           </div>
 
-          <Button className="flex gap-3">
+          <Button className="flex gap-3" onClick={addToCart} disabled={loading}>
             <ShoppingBasket />
-            Add to cart
+            {loading?<LoaderCircle className="animate-spin"/>:"Add to cart"}
           </Button>
         </div>
 

@@ -103,6 +103,16 @@ const getUser = async () => {
   }
 };
 
+const addToCart = async (data) => {
+  try {
+    const response = await axiosClient.post("/cart", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error adding product to cart", error);
+    throw error;
+  }
+};
+
 export default {
   login,
   logout,
@@ -112,4 +122,5 @@ export default {
   getSliders: () => fetchData("/sliders"),
   getProducts: () => fetchData("/products"),
   getProductsByCategory,
+  addToCart,
 };
