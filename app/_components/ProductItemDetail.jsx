@@ -3,13 +3,15 @@ import React, { useState, useContext } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, ShoppingBasket } from "lucide-react";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext } from "../_context/AuthContext";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import GlobalApi from "@/utils/GlobalApi";
+import { UpdateCartContext } from "../_context/UpdateCartContext";
 
 function ProductItemDetail({ product, categories = [] }) {
   const { isAuthenticated, user } = useContext(AuthContext);
+  const { updateCart, setUpdateCart } = useContext(UpdateCartContext);
   const router = useRouter();
   const productPrice = product.selling_price || product.mrp;
   const [quantity, setQuantity] = useState(1);
@@ -45,6 +47,7 @@ function ProductItemDetail({ product, categories = [] }) {
       };
       await GlobalApi.addToCart(data);
       toast("Added to cart");
+      setUpdateCart(!updateCart);
       setLoading(false)
     } catch (error) {
       console.error("Error adding to cart:", error);

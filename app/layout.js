@@ -3,8 +3,10 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Header from "./_components/Header";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/context/AuthContext"; // Import AuthProvider
+import { AuthProvider } from "./_context/AuthContext";
 import { usePathname } from "next/navigation";
+import { UpdateCartContext } from "./_context/UpdateCartContext";
+import { useState } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -24,17 +26,18 @@ const geistMono = localFont({
 
 export default function RootLayout({ children }) {
   const params = usePathname();
+  const [updateCart, setUpdateCart] = useState(false);
   const showHeader =
     params == "/sign-in" || params == "/create-account" ? false : true;
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthProvider>
-          {showHeader && <Header />}
-          {children}
-          <Toaster />
+          <UpdateCartContext.Provider value={{ updateCart, setUpdateCart }}>
+            {showHeader && <Header />}
+            {children}
+            <Toaster />
+          </UpdateCartContext.Provider>
         </AuthProvider>
       </body>
     </html>

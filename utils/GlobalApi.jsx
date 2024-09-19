@@ -3,12 +3,11 @@ import axios from "axios";
 const isServer = typeof window === "undefined";
 
 const axiosClient = axios.create({
-  baseURL: isServer
-    ? process.env.NEXT_PUBLIC_BACKEND_API_URL // Absolute URL for server-side
-    : "/api", // Relative URL for client-side (browser)
-  withCredentials: true, // Important: Sends the HttpOnly cookies automatically
+  baseURL: isServer ? process.env.NEXT_PUBLIC_BACKEND_API_URL : "/api",
+  withCredentials: true,
 });
 
+// Fetcher for all GET requests
 const fetchData = async (endpoint) => {
   try {
     const response = await axiosClient.get(endpoint);
@@ -19,108 +18,45 @@ const fetchData = async (endpoint) => {
   }
 };
 
-// Filter products by category name
+// Auth actions
+const login = (email, password, remember) =>
+  axiosClient.post("/login", { email, password, remember }).then((res) => res.data);
+
+const logout = () => axiosClient.post("/logout").then((res) => res.data);
+
+const register = (username, email, password) =>
+  axiosClient.post("/register", { name: username, email, password }).then((res) => res.data);
+
+// Cart actions
+const addToCart = (data) => axiosClient.post("/cart", data).then((res) => res.data);
+
+const deleteCartItem = (id) => axiosClient.delete(`/cart/${id}`).then((res) => res.data);
+
+// Filter products by category
 const getProductsByCategory = async (categoryName) => {
-  try {
-    if (!categoryName) {
-      throw new Error("Category name is required");
-    }
+  if (!categoryName) throw new Error("Category name is required");
 
-    const categories = await fetchData("/categories");
+  const categories = await fetchData("/categories");
+  const category = categories.find(
+    (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
+  );
 
-    // Find the category by name
-    const category = categories.find(
-      (cat) => cat.name.toLowerCase() === categoryName.toLowerCase()
-    );
+  if (!category) throw new Error("Category not found");
 
-    if (!category) {
-      throw new Error("Category not found");
-    }
-
-    // Fetch products by category_id
-    const products = await fetchData(`/products?category_id=${category.id}`);
-    return products;
-  } catch (error) {
-    console.error("Error fetching products by category", error);
-    return [];
-  }
+  return fetchData(`/products?category_id=${category.id}`);
 };
 
-const login = async (email, password, remember) => {
-  try {
-    const response = await axiosClient.post("/login", {
-      email,
-      password,
-      remember,
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Login failed", error);
-    throw error;
-  }
-};
-
-const logout = async () => {
-  try {
-    const response = await axiosClient.post("/logout");
-    return response.data;
-  } catch (error) {
-    console.error("Logout failed", error);
-    throw error;
-  }
-};
-
-const register = async (username, email, password) => {
-  try {
-    const response = await axiosClient.post("/register", {
-      name: username,
-      email,
-      password,
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      console.error("Registration failed", error.response.data);
-    } else {
-      console.error("Error", error.message);
-    }
-    throw error;
-  }
-};
-
-// Get authenticated user's data
-const getUser = async () => {
-  try {
-    const response = await axiosClient.get("/user");
-
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching user data",
-      error.response ? error.response : error
-    );
-    return null;
-  }
-};
-
-const addToCart = async (data) => {
-  try {
-    const response = await axiosClient.post("/cart", data);
-    return response.data;
-  } catch (error) {
-    console.error("Error adding product to cart", error);
-    throw error;
-  }
-};
-
+// Exports
 export default {
   login,
   logout,
   register,
-  getUser,
+  getUser: () => fetchData("/user"),
   getCategories: () => fetchData("/categories"),
   getSliders: () => fetchData("/sliders"),
   getProducts: () => fetchData("/products"),
   getProductsByCategory,
+  getCartItems: (userId) => fetchData(`/cart?user_id=${userId}`),
   addToCart,
+  deleteCartItem,
 };

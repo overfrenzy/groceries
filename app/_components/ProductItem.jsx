@@ -7,7 +7,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTrigger,
+  DialogTitle,
 } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import ProductItemDetail from "./ProductItemDetail";
 
 function ProductItem({ product, categories }) {
@@ -48,6 +50,9 @@ function ProductItem({ product, categories }) {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
+            <VisuallyHidden>
+              <DialogTitle>Product Details</DialogTitle>
+            </VisuallyHidden>
             <DialogDescription>
               <ProductItemDetail product={product} categories={categories} />
             </DialogDescription>

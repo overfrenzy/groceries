@@ -14,8 +14,10 @@ class CartController extends Controller
     // Get all items in the authenticated user's cart
     public function index()
     {
-        $user = JWTAuth::parseToken()->authenticate();
-        $cartItems = Cart::where('user_id', $user->id)->with('products')->get();
+        $user = auth()->user();
+        $cartItems = Cart::where('user_id', $user->id)
+            ->with('product:id,name,image,mrp') // Load specific fields from the product
+            ->get();
 
         return response()->json($cartItems);
     }
@@ -28,19 +30,34 @@ class CartController extends Controller
         $quantity = $request->input('quantity');
         $amount = $request->input('amount');
 
-        // Create or update cart item for a single product
-        $cartItem = Cart::updateOrCreate(
-            ['user_id' => $user->id, 'product_id' => $productId],
-            ['quantity' => $quantity, 'amount' => $amount]
-        );
+        // Check if the product already exists in the cart
+        $cartItem = Cart::where('user_id', $user->id)
+                        ->where('product_id', $productId)
+                        ->first();
+
+        if ($cartItem) {
+            // Update quantity and amount by incrementing the existing values
+            $cartItem->quantity += $quantity;
+            $cartItem->amount = $cartItem->quantity * ($amount / $quantity); // Recalculate the total
+            $cartItem->save();
+        } else {
+            // If the product does not exist in the cart, create a new entry
+            $cartItem = Cart::create([
+                'user_id' => $user->id,
+                'product_id' => $productId,
+                'quantity' => $quantity,
+                'amount' => $amount,
+            ]);
+        }
 
         return response()->json(['success' => true, 'cartItem' => $cartItem]);
     }
 
+
     // Remove an item from the cart
     public function destroy($id)
     {
-        $user = JWTAuth::parseToken()->authenticate();
+        $user = auth()->user();
         $cartItem = Cart::where('user_id', $user->id)->where('id', $id)->first();
 
         if ($cartItem) {

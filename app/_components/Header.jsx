@@ -10,17 +10,34 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleUserRound, LayoutGrid, Search, ShoppingBasket } from "lucide-react";
+import {
+  CircleUserRound,
+  LayoutGrid,
+  Search,
+  ShoppingBasket,
+} from "lucide-react";
 import GlobalApi from "@/utils/GlobalApi";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext } from "../_context/AuthContext";
+import { UpdateCartContext } from "../_context/UpdateCartContext";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import CartItemList from "./CartItemList";
 
 function Header() {
   const [categoryList, setCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated, user, setIsAuthenticated } = useContext(AuthContext); // Use auth context
-  const [totalCartItem, setTotalCartItem] = useState(0)
+  const { isAuthenticated, user, setIsAuthenticated } = useContext(AuthContext);
+  const { updateCart, setUpdateCart } = useContext(UpdateCartContext);
+  const [totalCartItem, setTotalCartItem] = useState(0);
+  const [cartItemList, setCartItemList] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -36,9 +53,27 @@ function Header() {
       });
   }, [isAuthenticated]);
 
-  const getCartItems=()=>{
-    //cart items overwrite themselves, getCartItems
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      getCartItems();
+    }
+  }, [isAuthenticated, updateCart]);
+
+  const getCartItems = async () => {
+    if (user) {
+      const cartItemList = await GlobalApi.getCartItems(user.id);
+      setTotalCartItem(cartItemList?.length || 0);
+      setCartItemList(
+        cartItemList.map((item) => ({
+          ...item,
+          productName: item.product.name,
+          productImage: item.product.image,
+          productPrice: item.product.mrp,
+        }))
+      );
+      console.log(cartItemList);
+    }
+  };
 
   const handleLogout = async () => {
     try {
@@ -102,26 +137,49 @@ function Header() {
         </div>
       </div>
       <div className="flex gap-5 items-center">
-        <h2 className="flex gap-2 items-center text-lg">
-          <ShoppingBasket className="h-7 w-7"/> 
-          <span className="bg-primary text-white px-2 rounded-full">{totalCartItem}</span></h2>
+        <Sheet>
+          <SheetTrigger>
+            <h2 className="flex gap-2 items-center text-lg">
+              <ShoppingBasket className="h-7 w-7" />
+              <span className="bg-primary text-white px-2 rounded-full">
+                {totalCartItem}
+              </span>
+            </h2>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle className="bg-primary text-white font-bold text-lg p-2">
+                My Cart
+              </SheetTitle>
+              <SheetDescription>
+                <CartItemList
+                  cartItemList={cartItemList}
+                  onCartUpdate={getCartItems}
+                />
+              </SheetDescription>
+            </SheetHeader>
+          </SheetContent>
+        </Sheet>
+
         {!isAuthenticated ? (
           <Link href="/sign-in">
-            <Button>Login</Button>
+            <Button className="text-white">Login</Button>
           </Link>
         ) : (
           <div className="flex items-center gap-2">
             <span>Welcome, {user?.name}</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <CircleUserRound className="h-12 w-12 bg-green-100 text-green-600 p-2 rounded-full cursor-pointer"/>
+                <CircleUserRound className="h-12 w-12 bg-green-100 text-green-600 p-2 rounded-full cursor-pointer" />
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>My Orders</DropdownMenuItem>
-                <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
