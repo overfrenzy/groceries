@@ -46,7 +46,9 @@ const getProductsByCategory = async (categoryName) => {
   return fetchData(`/products?category_id=${category.id}`);
 };
 
-// Exports
+// Order actions
+const placeOrder = (data) => axiosClient.post('/orders', data).then((res) => res.data);
+
 export default {
   login,
   logout,
@@ -59,4 +61,6 @@ export default {
   getCartItems: (userId) => fetchData(`/cart?user_id=${userId}`),
   addToCart,
   deleteCartItem,
+  placeOrder,
+  getOrderDetails: (orderId) => fetchData(`/orders/${orderId}`),
 };

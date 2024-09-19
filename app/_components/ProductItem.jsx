@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +13,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import ProductItemDetail from "./ProductItemDetail";
 
 function ProductItem({ product, categories }) {
+  const [open, setOpen] = useState(false);
   const hasDiscount =
     product.selling_price && product.selling_price < product.mrp;
 
@@ -39,11 +40,12 @@ function ProductItem({ product, categories }) {
         </h2>
       </div>
 
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
             variant="outline"
             className="text-primary hover:text-white hover:bg-green-600"
+            onClick={() => setOpen(true)}
           >
             Add to cart
           </Button>
@@ -54,7 +56,11 @@ function ProductItem({ product, categories }) {
               <DialogTitle>Product Details</DialogTitle>
             </VisuallyHidden>
             <DialogDescription>
-              <ProductItemDetail product={product} categories={categories} />
+              <ProductItemDetail
+                product={product}
+                categories={categories}
+                onClose={() => setOpen(false)}
+              />
             </DialogDescription>
           </DialogHeader>
         </DialogContent>

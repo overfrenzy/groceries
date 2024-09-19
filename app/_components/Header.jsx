@@ -23,6 +23,7 @@ import { AuthContext } from "../_context/AuthContext";
 import { UpdateCartContext } from "../_context/UpdateCartContext";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -35,43 +36,61 @@ function Header() {
   const [categoryList, setCategoryList] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isAuthenticated, user, setIsAuthenticated } = useContext(AuthContext);
-  const { updateCart, setUpdateCart } = useContext(UpdateCartContext);
+  const { updateCart } = useContext(UpdateCartContext);
   const [totalCartItem, setTotalCartItem] = useState(0);
   const [cartItemList, setCartItemList] = useState([]);
+  const [subtotal, setSubTotal] = useState(0);
   const router = useRouter();
 
+  // Fetch categories only when the component mounts or authentication state changes
   useEffect(() => {
-    // Fetch categories
-    GlobalApi.getCategories()
-      .then((resp) => {
-        setCategoryList(resp);
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        const categories = await GlobalApi.getCategories();
+        setCategoryList(categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      } finally {
         setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchCategories();
+    }
   }, [isAuthenticated]);
 
+  // Fetch cart items whenever the cart or authentication state updates
   useEffect(() => {
     if (isAuthenticated) {
       getCartItems();
     }
   }, [isAuthenticated, updateCart]);
 
+  // Function to fetch cart items and calculate subtotal
   const getCartItems = async () => {
     if (user) {
-      const cartItemList = await GlobalApi.getCartItems(user.id);
-      setTotalCartItem(cartItemList?.length || 0);
-      setCartItemList(
-        cartItemList.map((item) => ({
+      try {
+        const cartItems = await GlobalApi.getCartItems(user.id);
+        const updatedCartItems = cartItems.map((item) => ({
           ...item,
           productName: item.product.name,
           productImage: item.product.image,
           productPrice: item.product.mrp,
-        }))
-      );
-      console.log(cartItemList);
+        }));
+        setCartItemList(updatedCartItems);
+        setTotalCartItem(updatedCartItems.length);
+
+        // Calculate subtotal
+        const total = updatedCartItems.reduce(
+          (sum, item) => sum + parseFloat(item.amount),
+          0
+        );
+        setSubTotal(total);
+      } catch (error) {
+        console.error("Error fetching cart items:", error);
+      }
     }
   };
 
@@ -88,14 +107,21 @@ function Header() {
   return (
     <div className="p-5 shadow-md flex justify-between">
       <div className="flex items-center gap-8">
-        <Image src="/logo.png" alt="logo" width={50} height={50} />
+        <Link href="/">
+          <Image
+            src="/logo.png"
+            alt="logo"
+            width={50}
+            height={50}
+            style={{ cursor: "pointer" }}
+          />
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger>
             <h2
               className="hidden md:flex gap-2 items-center
-              border rounded-full p-2 px-10 bg-slate-200 cursor-pointer
-          "
+              border rounded-full p-2 px-10 bg-slate-200 cursor-pointer"
             >
               <LayoutGrid className="h-5 w-5" />
               Category
@@ -104,7 +130,6 @@ function Header() {
           <DropdownMenuContent>
             <DropdownMenuLabel>Browse Category</DropdownMenuLabel>
             <DropdownMenuSeparator />
-
             {loading ? (
               <DropdownMenuItem>Loading categories...</DropdownMenuItem>
             ) : categoryList.length > 0 ? (
@@ -136,6 +161,7 @@ function Header() {
           <input type="text" placeholder="Search" className="outline-none" />
         </div>
       </div>
+
       <div className="flex gap-5 items-center">
         <Sheet>
           <SheetTrigger>
@@ -158,6 +184,28 @@ function Header() {
                 />
               </SheetDescription>
             </SheetHeader>
+            <SheetClose asChild>
+              <div className="absolute w-[90%] bottom-6 flex flex-col">
+                <h2 className="text-lg font-bold flex justify-between">
+                  Subtotal <span>{subtotal} ₽</span>
+                </h2>
+                {isAuthenticated ? (
+                  <Button
+                    onClick={() => router.push("/checkout")}
+                    className="text-white font-bold"
+                  >
+                    View Cart
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => router.push("/sign-in")}
+                    className="text-white font-bold"
+                  >
+                    Sign in to Checkout
+                  </Button>
+                )}
+              </div>
+            </SheetClose>
           </SheetContent>
         </Sheet>
 

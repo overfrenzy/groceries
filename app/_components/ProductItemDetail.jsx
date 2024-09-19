@@ -4,18 +4,18 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LoaderCircle, ShoppingBasket } from "lucide-react";
 import { AuthContext } from "../_context/AuthContext";
+import { UpdateCartContext } from "../_context/UpdateCartContext";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import GlobalApi from "@/utils/GlobalApi";
-import { UpdateCartContext } from "../_context/UpdateCartContext";
 
-function ProductItemDetail({ product, categories = [] }) {
+function ProductItemDetail({ product, categories = [], onClose }) {
   const { isAuthenticated, user } = useContext(AuthContext);
   const { updateCart, setUpdateCart } = useContext(UpdateCartContext);
   const router = useRouter();
   const productPrice = product.selling_price || product.mrp;
   const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading]=useState(false)
+  const [loading, setLoading] = useState(false);
   const totalPrice = quantity * productPrice;
 
   const getCategoryName = (categoryId) => {
@@ -31,10 +31,10 @@ function ProductItemDetail({ product, categories = [] }) {
   };
 
   const addToCart = async () => {
-    setLoading(true)
+    setLoading(true);
     if (!isAuthenticated) {
       router.push("/sign-in");
-      setLoading(false)
+      setLoading(false);
       return;
     }
 
@@ -48,11 +48,15 @@ function ProductItemDetail({ product, categories = [] }) {
       await GlobalApi.addToCart(data);
       toast("Added to cart");
       setUpdateCart(!updateCart);
-      setLoading(false)
+      setLoading(false);
+
+      if (typeof onClose === "function") {
+        onClose();
+      }
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast("Failed to add to cart");
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -110,7 +114,11 @@ function ProductItemDetail({ product, categories = [] }) {
 
           <Button className="flex gap-3" onClick={addToCart} disabled={loading}>
             <ShoppingBasket />
-            {loading?<LoaderCircle className="animate-spin"/>:"Add to cart"}
+            {loading ? (
+              <LoaderCircle className="animate-spin" />
+            ) : (
+              "Add to cart"
+            )}
           </Button>
         </div>
 

@@ -6,16 +6,7 @@ import GlobalApi from "@/utils/GlobalApi";
 import { toast } from "sonner";
 
 function CartItemList({ cartItemList = [], onCartUpdate }) {
-  const [subtotal, setSubTotal] = useState(0);
   const [loadingItemId, setLoadingItemId] = useState(null);
-
-  useEffect(() => {
-    let total = 0;
-    cartItemList.forEach((element) => {
-      total += parseFloat(element.amount);
-    });
-    setSubTotal(total);
-  }, [cartItemList]);
 
   const handleDelete = async (id) => {
     try {
@@ -32,7 +23,7 @@ function CartItemList({ cartItemList = [], onCartUpdate }) {
 
   return (
     <div>
-      <div>
+      <div className="h-[400px] overflow-auto">
         {cartItemList.length > 0 ? (
           cartItemList.map((cart, index) => (
             <div
@@ -66,12 +57,6 @@ function CartItemList({ cartItemList = [], onCartUpdate }) {
         ) : (
           <h2>No items in the cart.</h2>
         )}
-      </div>
-      <div className="absolute w-[90%] bottom-6 flex flex-col">
-        <h2 className="text-lg font-bold flex justify-between">
-          Subtotal <span>{subtotal} ₽</span>
-        </h2>
-        <Button className="text-white font-bold">View Cart</Button>
       </div>
     </div>
   );

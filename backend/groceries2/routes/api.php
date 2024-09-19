@@ -6,6 +6,7 @@ use App\Http\Controllers\SliderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 use App\Http\Middleware\JwtMiddleware;
 
 // Public routes (categories, sliders, products)
@@ -26,4 +27,9 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('/cart', [CartController::class, 'store']);
     Route::get('/cart', [CartController::class, 'index']);
     Route::delete('/cart/{id}', [CartController::class, 'destroy']);
+
+    // Order routes (requires user to be logged in)
+    Route::post('/orders', [OrderController::class, 'createOrder']);
+    Route::get('/orders/{id}', [OrderController::class, 'getOrderDetails']);
+
 });
